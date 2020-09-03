@@ -174,5 +174,32 @@ dashboard = common.Dashboard(
                 ),
             ]
         ),
+        G.Row(
+            title="Memcache",
+            panels=[
+                common.StatusQPSGraph(
+                    common.PROMETHEUS, "Memcache read QPS",
+                    'sum by (job,status_code)(rate(cortex_memcache_request_duration_seconds_count{method="Memcache.GetMulti", job="cortex/ruler"}[1m]))'
+                ),
+                common.PromGraph(
+                    title="Memcache read latency",
+                    expressions=[
+                        (
+                            '99th centile',
+                            'histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job="cortex/ruler",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
+                        ),
+                        (
+                            '50th centile',
+                            'histogram_quantile(0.5, sum(rate(cortex_memcache_request_duration_seconds_bucket{job="cortex/ruler",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
+                        ),
+                        (
+                            'Mean',
+                            'sum(rate(cortex_memcache_request_duration_seconds_sum{job="cortex/ruler",method="Memcache.GetMulti"}[2m])) * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job="cortex/ruler",method="Memcache.GetMulti"}[2m]))'
+                        ),
+                    ],
+                    yAxes=common.LATENCY_AXES,
+                ),
+            ],
+        ),
     ],
 )
