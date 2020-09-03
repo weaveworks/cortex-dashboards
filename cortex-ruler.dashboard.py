@@ -12,6 +12,13 @@ dashboard = common.Dashboard(
             title="Configs",
             collapse=True,
             panels=[
+                common.PromGraph(
+                    title="Known Configurations",
+                    expressions=[
+                        ("Configurations", 'max(cortex_configs{job="cortex/ruler"})'),
+                        ("{{status}}", 'max by(status)(cortex_alertmanager_configs{job="cortex/alertmanager"})'),
+                    ],
+                ),
                 common.QPSGraph('cortex_configs', 'Configs', 'cortex/ruler'),
                 common.PromGraph(
                     title="Configs Latency",
@@ -42,6 +49,9 @@ dashboard = common.Dashboard(
                         (
                             "Groups per second",
                             'sum(rate(cortex_group_evaluation_duration_seconds_count{job="cortex/ruler"}[1m]))'
+                        ), (
+                            "Groups per second",
+                            'sum(rate(cortex_prometheus_rule_group_duration_seconds_count{job="cortex/ruler"}[1m]))'
                         )
                     ],
                     yAxes=common.OPS_AXIS,
@@ -61,6 +71,11 @@ dashboard = common.Dashboard(
                             "Mean",
                             'sum(rate(cortex_group_evaluation_duration_seconds_sum{job="cortex/ruler"}[2m])) / sum(rate(cortex_group_evaluation_duration_seconds_count{job="cortex/ruler"}[2m])) * 1e3'
                         ),
+                        ("Mean", 'avg(cortex_prometheus_rule_group_last_duration_seconds)*1e3'),
+                        (
+                            "{{rule_group}}",
+                            'max by (rule_group)(cortex_prometheus_rule_group_last_duration_seconds)*1e3 > 500'
+                        ),
                     ],
                     yAxes=common.LATENCY_AXES,
                 ),
@@ -79,6 +94,8 @@ dashboard = common.Dashboard(
                             "Mean",
                             'sum(rate(cortex_group_evaluation_latency_seconds_sum[2m])) / sum(rate(cortex_group_evaluation_latency_seconds_count[2m])) * 1e3'
                         ),
+                        ("Mean", 'avg(time()-(cortex_prometheus_rule_group_last_evaluation_timestamp_seconds>0))*1000'),
+                        ("Max", 'max(time()-(cortex_prometheus_rule_group_last_evaluation_timestamp_seconds>0))*1e3'),
                     ],
                     yAxes=common.LATENCY_AXES,
                 ),
@@ -141,6 +158,7 @@ dashboard = common.Dashboard(
                     title="Rules per Second",
                     expressions=[
                         ("Rules", 'sum(rate(cortex_rules_processed_total{job="cortex/ruler"}[1m]))'),
+                        ("Rules/sec", 'sum(rate(cortex_prometheus_rule_evaluations_total{job="cortex/ruler"}[1m]))'),
                     ],
                     yAxes=common.OPS_AXIS,
                 ),
@@ -153,28 +171,6 @@ dashboard = common.Dashboard(
                         ),
                     ],
                     yAxes=common.OPS_AXIS,
-                ),
-            ]
-        ),
-        G.Row(
-            [
-                common.PromGraph(
-                    title="Known Configurations",
-                    expressions=[
-                        ("Configurations", 'max(cortex_configs{job="cortex/ruler"})'),
-                    ],
-                ),
-                common.PromGraph(
-                    title="Rules Queue Length",
-                    expressions=[
-                        ("Groups", 'sum(cortex_rules_queue_length{job="cortex/ruler"})'),
-                    ],
-                ),
-                common.PromGraph(
-                    title="Idle workers",
-                    expressions=[
-                        ("Workers", 'sum(rate(cortex_worker_idle_seconds_total[1m]))'),
-                    ],
                 ),
             ]
         ),
