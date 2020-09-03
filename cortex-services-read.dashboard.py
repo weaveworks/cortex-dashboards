@@ -91,7 +91,7 @@ dashboard = common.Dashboard(
                         ),
                         (
                             '{{table}} provisioned',
-                            'max(cortex_dynamo_table_capacity_units{job="cortex/table-manager", op="read"}) by (table) and (sum(rate(cortex_dynamo_consumed_capacity_total{job=~"cortex/.*", operation!~".*Write.*"}[1m])) by (table) > 0)'
+                            'max(cortex_dynamo_table_capacity_units{job="cortex/table-manager", op="read"}) by (table) > 0'
                         ),
                     ],
                     yAxes=common.OPS_AXIS,
