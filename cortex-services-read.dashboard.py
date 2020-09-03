@@ -93,6 +93,10 @@ dashboard = common.Dashboard(
                             '{{table}} provisioned',
                             'max(cortex_dynamo_table_capacity_units{job="cortex/table-manager", op="read"}) by (table) > 0'
                         ),
+                        (
+                            '{{table}} provisioned',
+                            'max(cortex_table_capacity_units{job="cortex/table-manager", op="read"}) by (table) > 0'
+                        ),
                     ],
                     yAxes=common.OPS_AXIS,
                 ),
