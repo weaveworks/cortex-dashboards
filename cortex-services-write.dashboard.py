@@ -247,6 +247,10 @@ dashboard = common.Dashboard(
                             '{{table}} - {{error}}',
                             'sum(rate(cortex_dynamo_failures_total{job=~"cortex/.*", operation=~".*Write.*"}[1m])) by (job, error, table) > 0'
                         ),
+                        (
+                            '{{table}} - Throttled',
+                            'sum(rate(cortex_dynamo_throttled_total{job=~"cortex/.*", operation=~".*Write.*"}[1m])) by (job, error, table) > 0'
+                        ),
                     ],
                     yAxes=common.OPS_AXIS,
                 ),
@@ -271,10 +275,6 @@ dashboard = common.Dashboard(
                         (
                             '{{method}} {{status_code}}',
                             'sum(rate(cortex_memcache_request_duration_seconds_count{job="cortex/ingester"}[1m])) by (method,status_code)'
-                        ),
-                        (
-                            '{{table}} - Throttled',
-                            'sum(rate(cortex_dynamo_throttled_total{job=~"cortex/.*", operation=~".*Write.*"}[1m])) by (job, error, table) > 0'
                         ),
                     ],
                 ),
