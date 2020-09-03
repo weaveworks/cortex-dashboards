@@ -16,8 +16,8 @@ dashboard = common.Dashboard(
                     title="Retrieval sent batches",
                     expressions=[
                         (
-                            '{{queue}}',
-                            'sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_count[1m])) by (queue)'
+                            '{{url}}',
+                            'sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_count[1m])) by (url)'
                         ),
                     ],
                 ),
@@ -25,16 +25,16 @@ dashboard = common.Dashboard(
                     title="Retrieval batch latency",
                     expressions=[
                         (
-                            '{{queue}} 99th',
-                            'histogram_quantile(0.99, sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_bucket[2m])) by (queue, le)) * 1e3'
+                            '{{url}} 99th',
+                            'histogram_quantile(0.99, sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_bucket[2m])) by (url, le)) * 1e3'
                         ),
                         (
-                            '{{queue}} 50th',
-                            'histogram_quantile(0.50, sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_bucket[2m])) by (queue, le)) * 1e3'
+                            '{{url}} 50th',
+                            'histogram_quantile(0.50, sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_bucket[2m])) by (url, le)) * 1e3'
                         ),
                         (
-                            '{{queue}} mean',
-                            '(sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_sum[2m])) by (queue) /  sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_count[2m])) by (queue)) * 1e3'
+                            '{{url}} mean',
+                            '(sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_sum[2m])) by (url) /  sum(rate(prometheus_remote_storage_sent_batch_duration_seconds_count[2m])) by (url)) * 1e3'
                         ),
                     ],
                     yAxes=common.LATENCY_AXES,
@@ -43,32 +43,23 @@ dashboard = common.Dashboard(
                     title="Retrieval sent samples",
                     expressions=[
                         (
-                            '{{queue}} success',
-                            'sum(rate(prometheus_remote_storage_succeeded_samples_total[1m])) by (queue)'
+                            '{{url}} success',
+                            'sum(rate(prometheus_remote_storage_succeeded_samples_total[1m])) by (url)'
                         ),
-                        (
-                            '{{queue}} dropped',
-                            'sum(rate(prometheus_remote_storage_dropped_samples_total[1m])) by (queue)'
-                        ),
-                        (
-                            '{{queue}} retried',
-                            'sum(rate(prometheus_remote_storage_retried_samples_total[1m])) by (queue)'
-                        ),
-                        (
-                            '{{queue}} failure',
-                            'sum(rate(prometheus_remote_storage_failed_samples_total[1m])) by (queue)'
-                        ),
+                        ('{{url}} dropped', 'sum(rate(prometheus_remote_storage_dropped_samples_total[1m])) by (url)'),
+                        ('{{url}} retried', 'sum(rate(prometheus_remote_storage_retried_samples_total[1m])) by (url)'),
+                        ('{{url}} failure', 'sum(rate(prometheus_remote_storage_failed_samples_total[1m])) by (url)'),
                     ],
                 ),
                 common.PromGraph(
                     title="Queue",
                     expressions=[
-                        ('{{queue}}: queue length', 'sum(prometheus_remote_storage_pending_samples) by (queue)'),
+                        ('{{url}}: queue length', 'sum(prometheus_remote_storage_pending_samples) by (url)'),
                         (
-                            '{{queue}}: lag',
-                            'max(time()-prometheus_remote_storage_queue_highest_sent_timestamp_seconds) by (queue)'
+                            '{{url}}: lag',
+                            'max(time()-prometheus_remote_storage_queue_highest_sent_timestamp_seconds) by (url)'
                         ),
-                        ('{{queue}}: shards', 'max(prometheus_remote_storage_shards) by (queue)'),
+                        ('{{url}}: shards', 'max(prometheus_remote_storage_shards) by (url)'),
                     ],
                 ),
             ],
