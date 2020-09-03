@@ -121,22 +121,22 @@ dashboard = common.Dashboard(
             panels=[
                 common.StatusQPSGraph(
                     common.PROMETHEUS, "Memcache read QPS",
-                    'rate(cortex_memcache_request_duration_seconds_count{method="Memcache.Get", job=~"cortex/.*"}[1m])'
+                    'sum by (job,status_code)(rate(cortex_memcache_request_duration_seconds_count{method="Memcache.GetMulti", job=~"cortex/querier|cortex/query-frontend"}[1m]))'
                 ),
                 common.PromGraph(
                     title="Memcache read latency",
                     expressions=[
                         (
                             '99th centile',
-                            'histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/.*",method="Memcache.Get"}[2m])) by (le)) * 1e3'
+                            'histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
                         ),
                         (
                             '50th centile',
-                            'histogram_quantile(0.5, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/.*",method="Memcache.Get"}[2m])) by (le)) * 1e3'
+                            'histogram_quantile(0.5, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
                         ),
                         (
                             'Mean',
-                            'sum(rate(cortex_memcache_request_duration_seconds_sum{job=~"cortex/.*",method="Memcache.Get"}[2m])) * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job=~"cortex/.*",method="Memcache.Get"}[2m]))'
+                            'sum(rate(cortex_memcache_request_duration_seconds_sum{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m]))'
                         ),
                     ],
                     yAxes=common.LATENCY_AXES,
