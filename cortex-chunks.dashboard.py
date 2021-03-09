@@ -123,7 +123,10 @@ dashboard = common.Dashboard(
                                 'sum by (reason)(rate(cortex_ingester_flush_reasons[1m]) or rate(cortex_ingester_series_flushed_total[1m]) or rate(cortex_ingester_flushing_enqueued_series_total[1m]))'
                             ),
                             # This is the rate at which chunks are removed from the flush queue
-                            ("Flushed", 'sum(rate(cortex_ingester_chunks_stored_total[1m]))'),
+                            (
+                                "Flushed",
+                                'sum(rate(cortex_ingester_chunks_stored_total[1m]) or rate(cortex_chunk_store_stored_chunks_total[1m]))'
+                            ),
                             # Chunks dropped for being too small
                             ("Dropped", 'sum(rate(cortex_ingester_dropped_chunks_total[1m]))'),
                         ],
@@ -155,6 +158,10 @@ dashboard = common.Dashboard(
                         (
                             '{{table}} consumed',
                             'sum(rate(cortex_dynamo_consumed_capacity_total{operation="DynamoDB.BatchWriteItem"}[1m])) by (table) > 0'
+                        ),
+                        (
+                            '{{table}} provisioned',
+                            'max(cortex_dynamo_table_capacity_units{job="cortex/table-manager", op="write"}) by (table) > 0'
                         ),
                         (
                             '{{table}} provisioned',

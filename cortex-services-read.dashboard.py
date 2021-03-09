@@ -13,7 +13,7 @@ dashboard = common.Dashboard(
             'Query Frontend read',
             'cortex/query-frontend',
             rule_root="job_route:",
-            extra_conditions=",route=\"api_prom\""
+            extra_conditions=",route=\"api_prom_api_v1_query_range\""
         ),
         common.REDRow('cortex', 'Querier read', 'cortex/querier'),
         G.Row(
