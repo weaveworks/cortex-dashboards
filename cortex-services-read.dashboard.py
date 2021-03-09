@@ -117,29 +117,58 @@ dashboard = common.Dashboard(
             ],
         ),
         G.Row(
-            title="Memcache",
+            title="Memcache (blocks)",
             panels=[
-                common.StatusQPSGraph(
-                    common.PROMETHEUS, "Memcache read QPS",
-                    'sum by (job,status_code)(rate(cortex_memcache_request_duration_seconds_count{method="Memcache.GetMulti", job=~"cortex/querier|cortex/query-frontend"}[1m]))'
-                ),
                 common.PromGraph(
-                    title="Memcache read latency",
+                    title="Memcache read QPS (blocks)",
                     expressions=[
                         (
-                            '99th centile',
-                            'histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
+                            '{{name}} {{operation}}',
+                            'sum(rate(thanos_memcached_operation_duration_seconds_count{kubernetes_namespace="cortex"}[1m])) by (name, operation)'
                         ),
                         (
-                            '50th centile',
-                            'histogram_quantile(0.5, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) by (le)) * 1e3'
+                            '{{name}} {{operation}} {{reason}}',
+                            'sum(rate(thanos_memcached_operation_failures_total{kubernetes_namespace="cortex"}[1m])) by (name, operation, reason) > 0'
+                        ),
+                    ],
+                    yAxes=G.single_y_axis(format=G.OPS_FORMAT),
+                ),
+                common.PromGraph(
+                    title="Memcache read latency (blocks)",
+                    expressions=[
+                        (
+                            '99% {{name}}',
+                            'histogram_quantile(0.99, sum(rate(thanos_memcached_operation_duration_seconds_bucket{job=~"cortex/querier|cortex/store-gateway",operation="getmulti"}[2m])) by (le, name))'
                         ),
                         (
                             'Mean',
-                            'sum(rate(cortex_memcache_request_duration_seconds_sum{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m]))'
+                            'sum(rate(thanos_memcached_operation_duration_seconds_sum{job=~"cortex/querier|cortex/store-gateway",operation="getmulti"}[2m])) / sum(rate(thanos_memcached_operation_duration_seconds_count{job=~"cortex/querier|cortex/store-gateway",operation="getmulti"}[2m]))'
                         ),
                     ],
-                    yAxes=common.LATENCY_AXES,
+                    yAxes=G.single_y_axis(format=G.SECONDS_FORMAT),
+                ),
+            ],
+        ),
+        G.Row(
+            title="Memcache (chunks)",
+            panels=[
+                common.StatusQPSGraph(
+                    common.PROMETHEUS, "Memcache read QPS (chunks)",
+                    'sum by (job,status_code)(rate(cortex_memcache_request_duration_seconds_count{method="Memcache.GetMulti", job=~"cortex/querier|cortex/query-frontend"}[1m]))'
+                ),
+                common.PromGraph(
+                    title="Memcache read latency (chunks)",
+                    expressions=[
+                        (
+                            '99% {{name}}',
+                            'histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) by (le, name))'
+                        ),
+                        (
+                            'Mean',
+                            'sum(rate(cortex_memcache_request_duration_seconds_sum{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m])) / sum(rate(cortex_memcache_request_duration_seconds_count{job=~"cortex/querier|cortex/query-frontend",method="Memcache.GetMulti"}[2m]))'
+                        ),
+                    ],
+                    yAxes=G.single_y_axis(format=G.SECONDS_FORMAT),
                 ),
             ],
         ),
