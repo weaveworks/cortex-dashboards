@@ -3,6 +3,8 @@
 import grafanalib.core as G
 import grafanalib.weave as W
 
+import sys, os
+sys.path.append(os.path.dirname(__file__))
 import common
 
 dashboard = common.Dashboard(
